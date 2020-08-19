@@ -4,13 +4,13 @@
  */
 
 const axios = require('axios');
+const fs = require('fs');
 
-
-const FACEQUEST_REGISTERED_EMAIL = "myemail@example.com"
-const FACEQUEST_SECRET = "my_super_top_secret"
+const FACEQUEST_REGISTERED_EMAIL = "email@example.com"
+const FACEQUEST_SECRET = "my_super_secret"
 
 const REFERENCE_PHOTO_FILE_LOCATION = "./reference_photo.jpg"
-const PHOTO_TO_BE_VALIDATED_FILE_LOCATION = "./photo_to_be_verified.jpg"
+const PHOTO_TO_BE_VERIFIED_FILE_LOCATION = "./photo_to_be_verified.jpg"
 const TITLE_OF_VERIFICATION_JOB = "Verification of User 2345"
 const NOTES_FOR_VERIFICATION = "This is triggerred as a part of our regular user verification with Aadhaar card"
 
@@ -36,43 +36,74 @@ class FaceQuestClient {
 
     await this.uploadReferenceFacePhoto();
 
-    await this.uploadPhotoToBeValidated();
+    await this.uploadPhotoToBeVerified();
 
     await this.fireVerificationRequest();
 
     //poll for results
-    this.pollingTimer = setInterval(this.checkIfVerificationCompleted.bind(this), 3000);
+    this.pollingTimer = setInterval(this.checkIfVerificationCompleted.bind(this), 5000);
   }
 
 
   async getUrlsToUploadPhotos() {
+    var self = this;
     await axios.get(
         "https://verifyapi.facequest.io/api/v1/verification/uploadurl",
         HEADER_DEFINITION
       )
       .then((response) => {
-        console.log("Received upload url data: \n" + this.prettyPrint(response.data))
-        this.uploadUrls = response.data;
+        console.log("Received upload url data: \n" + self.prettyPrint(response.data))
+        self.uploadUrls = response.data;
       })
       .catch((err) => {
-        console.error("Error fetching upload URLs - " + err);
+        console.error("Error fetching upload URLs - " + self.prettyPrint(err));
       });
   }
 
 
   async uploadReferenceFacePhoto() {
-    var referenceFaceUploadUrl = this.uploadUrls.data.referenceFace.uploadUrl;
-    await axios.put(referenceFaceUploadUrl, REFERENCE_PHOTO_FILE_LOCATION).then((response) => {
-      console.log("Successfully uploaded reference face photo")
+    var self = this;
+    var referencePhotoUploadUrl = this.uploadUrls.data.referenceFace.uploadUrl;
+
+    fs.readFile(REFERENCE_PHOTO_FILE_LOCATION, async (err, data) => {
+      if (err) throw err;
+      var config = {
+        method: 'put',
+        url: referencePhotoUploadUrl,
+        data: data
+      };
+      await axios(config)
+        .then(function(response) {
+          console.log("Successfully uploaded reference photo");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     });
   }
 
-  async uploadPhotoToBeValidated() {
-    var givenFaceUploadUrl = this.uploadUrls.data.faceToBeValidated.uploadUrl;
-    await axios.put(givenFaceUploadUrl, PHOTO_TO_BE_VALIDATED_FILE_LOCATION).then((response) => {
-      console.log("Successfully uploaded photo to be validated")
+  async uploadPhotoToBeVerified() {
+    var self = this;
+    var photoToBeVerifiedUploadUrl = this.uploadUrls.data.faceToBeValidated.uploadUrl;
+
+    fs.readFile(PHOTO_TO_BE_VERIFIED_FILE_LOCATION, async (err, data) => {
+      if (err) throw err;
+
+      var config = {
+        method: 'put',
+        url: photoToBeVerifiedUploadUrl,
+        data: data
+      };
+      await axios(config)
+        .then(function(response) {
+          console.log("Successfully uploaded photo to be verified");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     });
   }
+
 
   async fireVerificationRequest() {
     const body = {

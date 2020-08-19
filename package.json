@@ -4,11 +4,12 @@
   "description": "Example implementation of FaceQuest client (https://facequest.io)",
   "main": "src/index.js",
   "scripts": {
-    "start":"node src/index.js"
+    "start": "node src/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "fs": "0.0.1-security"
   }
 }
