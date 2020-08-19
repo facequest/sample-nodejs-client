@@ -34,7 +34,7 @@ class FaceQuestClient {
   async main() {
     await this.getUrlsToUploadPhotos();
 
-    await this.uploadReferenceFacePhoto();
+    await this.uploadReferencePhoto();
 
     await this.uploadPhotoToBeVerified();
 
@@ -61,9 +61,9 @@ class FaceQuestClient {
   }
 
 
-  async uploadReferenceFacePhoto() {
+  async uploadReferencePhoto() {
     var self = this;
-    var referencePhotoUploadUrl = this.uploadUrls.data.referenceFace.uploadUrl;
+    var referencePhotoUploadUrl = this.uploadUrls.data.referencePhoto.uploadUrl;
 
     fs.readFile(REFERENCE_PHOTO_FILE_LOCATION, async (err, data) => {
       if (err) throw err;
@@ -84,7 +84,7 @@ class FaceQuestClient {
 
   async uploadPhotoToBeVerified() {
     var self = this;
-    var photoToBeVerifiedUploadUrl = this.uploadUrls.data.faceToBeValidated.uploadUrl;
+    var photoToBeVerifiedUploadUrl = this.uploadUrls.data.photoToBeVerified.uploadUrl;
 
     fs.readFile(PHOTO_TO_BE_VERIFIED_FILE_LOCATION, async (err, data) => {
       if (err) throw err;
@@ -109,8 +109,8 @@ class FaceQuestClient {
     const body = {
       title: TITLE_OF_VERIFICATION_JOB,
       notes: NOTES_FOR_VERIFICATION,
-      referenceFaceFilePath: this.uploadUrls.data.referenceFace.filePath,
-      givenFaceFilePath: this.uploadUrls.data.faceToBeValidated.filePath
+      referencePhotoFilePath: this.uploadUrls.data.referencePhoto.filePath,
+      photoToBeVerifiedFilePath: this.uploadUrls.data.photoToBeVerified.filePath
     }
     const self = this;
     await axios.post(
