@@ -1,0 +1,14 @@
+{
+  "name": "facequestclient",
+  "version": "1.0.0",
+  "description": "Example implementation of FaceQuest client (https://facequest.io)",
+  "main": "src/index.js",
+  "scripts": {
+    "start":"node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
+}
